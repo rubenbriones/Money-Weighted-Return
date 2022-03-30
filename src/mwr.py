@@ -41,7 +41,9 @@ def money_weighted_return_annualized(nav, aum, flows=None):
     return mwr
 
 
-def theoretical_mwr_annualized_with_inverted_flows(nav, aum, max_flows_weight=0.3):
+def theoretical_mwr_annualized_with_inverted_flows(
+    nav, aum, max_flows_weight=0.3
+):
     """
     Calculate theoretical annualized Money-weighted return, if the opposite
     flows were made (convert inflows to outflows, and outflows to inflows).
@@ -89,7 +91,9 @@ def theoretical_mwr_annualized_with_inverted_flows(nav, aum, max_flows_weight=0.
         aum_inv[i] = aum_inv[i - 1] * nav_returns[i] + flows_amount_inv[i]
 
     # Then calculate the MWR with this new theoretical AUM
-    mwr_inv = money_weighted_return_annualized(nav=nav, aum=aum_inv, flows=flows_amount_inv)
+    mwr_inv = money_weighted_return_annualized(
+        nav=nav, aum=aum_inv, flows=flows_amount_inv
+    )
 
     return mwr_inv
 
@@ -134,7 +138,9 @@ def theoretical_mwr_annualized(nav, aum, max_flows_weight=0.3):
         aum[i] = aum[i - 1] * nav_returns[i] + flows_amount[i]
 
     # Then calculate the MWR with this new theoretical AUM
-    mwr = money_weighted_return_annualized(nav=nav, aum=aum, flows=flows_amount)
+    mwr = money_weighted_return_annualized(
+        nav=nav, aum=aum, flows=flows_amount
+    )
 
     return mwr
 
@@ -202,9 +208,18 @@ def _xirr(cashflows):
     cashflows.index = (cashflows.index - cashflows.index.min()).days / 365.0
 
     try:
-        result = optimize.newton(lambda r: (cashflows / ((1 + r) ** cashflows.index)).sum(), x0=0, rtol=1e-4)
+        result = optimize.newton(
+            lambda r: (cashflows / ((1 + r) ** cashflows.index)).sum(),
+            x0=0,
+            rtol=1e-4,
+        )
     except (RuntimeError, OverflowError):
-        result = optimize.brentq(lambda r: (cashflows / ((1 + r) ** cashflows.index)).sum(), a=-0.999999999999999, b=100, maxiter=10 ** 4)
+        result = optimize.brentq(
+            lambda r: (cashflows / ((1 + r) ** cashflows.index)).sum(),
+            a=-0.999999999999999,  # It NEEDS to be STRICTLY < -1.0!!
+            b=100,
+            maxiter=10 ** 4,
+        )
 
     if not isinstance(result, complex):
         return result
